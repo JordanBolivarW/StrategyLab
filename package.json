@@ -1,0 +1,47 @@
+{
+  "name": "strategy-lab",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Strategy Lab MCP - Visual platform for trading strategy research and backtesting",
+  "scripts": {
+    "dev": "pnpm dev:frontend",
+    "dev:frontend": "pnpm --filter @strategy-lab/frontend dev",
+    "dev:backend": "pnpm --filter @strategy-lab/backend dev",
+    "build": "pnpm --filter @strategy-lab/shared build && pnpm --filter @strategy-lab/frontend build",
+    "build:frontend": "pnpm --filter @strategy-lab/frontend build",
+    "build:backend": "pnpm --filter @strategy-lab/backend build",
+    "test": "pnpm --filter @strategy-lab/shared test && pnpm --filter @strategy-lab/frontend test",
+    "test:frontend": "pnpm --filter @strategy-lab/frontend test",
+    "test:backend": "pnpm --filter @strategy-lab/backend test",
+    "test:e2e": "pnpm --filter @strategy-lab/frontend test:e2e",
+    "lint": "pnpm --filter @strategy-lab/shared lint && pnpm --filter @strategy-lab/frontend lint",
+    "lint:frontend": "pnpm --filter @strategy-lab/frontend lint",
+    "lint:backend": "pnpm --filter @strategy-lab/backend lint",
+    "typecheck": "pnpm --filter @strategy-lab/shared typecheck && pnpm --filter @strategy-lab/frontend typecheck",
+    "typecheck:frontend": "pnpm --filter @strategy-lab/frontend typecheck",
+    "typecheck:backend": "pnpm --filter @strategy-lab/backend typecheck",
+    "db:migrate": "pnpm --filter @strategy-lab/backend db:migrate",
+    "db:revision": "pnpm --filter @strategy-lab/backend db:revision",
+    "db:reset": "pnpm --filter @strategy-lab/backend db:reset",
+    "docker:up": "docker compose -f docker/docker-compose.yml up -d",
+    "docker:down": "docker compose -f docker/docker-compose.yml down",
+    "docker:logs": "docker compose -f docker/docker-compose.yml logs -f",
+    "mcp:dev": "pnpm --filter @strategy-lab/backend mcp:dev"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.12.0",
+    "@typescript-eslint/eslint-plugin": "^8.8.0",
+    "@typescript-eslint/parser": "^8.8.0",
+    "concurrently": "^8.2.2",
+    "eslint": "^9.12.0",
+    "eslint-plugin-react-hooks": "^5.0.0",
+    "eslint-plugin-react-refresh": "^0.4.12",
+    "globals": "^15.10.0",
+    "husky": "^9.0.11"
+  },
+  "engines": {
+    "node": ">=20.0.0",
+    "pnpm": ">=9.0.0"
+  },
+  "packageManager": "pnpm@9.0.0"
+}

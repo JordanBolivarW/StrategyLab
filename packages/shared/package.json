@@ -1,0 +1,54 @@
+{
+  "name": "@strategy-lab/shared",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "main": "dist/index.js",
+  "module": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    },
+    "./strategy": {
+      "import": "./dist/strategy.js",
+      "types": "./dist/strategy.d.ts"
+    },
+    "./indicator": {
+      "import": "./dist/indicator.js",
+      "types": "./dist/indicator.d.ts"
+    },
+    "./market": {
+      "import": "./dist/market.js",
+      "types": "./dist/market.d.ts"
+    },
+    "./backtest": {
+      "import": "./dist/backtest.js",
+      "types": "./dist/backtest.d.ts"
+    },
+    "./mcp": {
+      "import": "./dist/mcp.js",
+      "types": "./dist/mcp.d.ts"
+    },
+    "./validation": {
+      "import": "./dist/validation.js",
+      "types": "./dist/validation.d.ts"
+    }
+  },
+  "scripts": {
+    "build": "tsc -b",
+    "dev": "tsc -b --watch",
+    "lint": "eslint src",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run"
+  },
+  "devDependencies": {
+    "typescript": "^5.6.2",
+    "vitest": "^2.1.2",
+    "zod": "^3.23.8"
+  },
+  "peerDependencies": {
+    "zod": "^3.23.8"
+  }
+}

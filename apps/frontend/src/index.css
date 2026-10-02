@@ -1,0 +1,133 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  * {
+    @apply border-dark-border;
+  }
+  
+  body {
+    @apply bg-dark-bg text-white;
+    font-family: 'Inter', system-ui, sans-serif;
+  }
+  
+  .font-mono {
+    font-family: 'JetBrains Mono', 'Fira Code', monospace;
+  }
+}
+
+@layer components {
+  .btn {
+    @apply px-4 py-2 rounded-lg font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 focus:ring-offset-dark-bg disabled:opacity-50 disabled:cursor-not-allowed;
+  }
+  
+  .btn-primary {
+    @apply btn bg-primary-600 hover:bg-primary-700 text-white;
+  }
+  
+  .btn-secondary {
+    @apply btn bg-dark-card hover:bg-dark-border text-white border border-dark-border;
+  }
+  
+  .btn-danger {
+    @apply btn bg-red-600 hover:bg-red-700 text-white;
+  }
+  
+  .input {
+    @apply w-full px-3 py-2 bg-dark-card border border-dark-border rounded-lg text-white placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent;
+  }
+  
+  .select {
+    @apply input appearance-none bg-dark-card;
+  }
+  
+  .card {
+    @apply bg-dark-card border border-dark-border rounded-xl p-6;
+  }
+  
+  .panel {
+    @apply bg-dark-card border border-dark-border rounded-xl;
+  }
+  
+  .panel-header {
+    @apply px-4 py-3 border-b border-dark-border flex items-center justify-between;
+  }
+  
+  .panel-content {
+    @apply p-4;
+  }
+}
+
+@layer utilities {
+  .scrollbar-thin {
+    scrollbar-width: thin;
+    scrollbar-color: theme('colors.dark.border') transparent;
+  }
+  
+  .scrollbar-thin::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+  
+  .scrollbar-thin::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  
+  .scrollbar-thin::-webkit-scrollbar-thumb {
+    background-color: theme('colors.dark.border');
+    border-radius: 4px;
+  }
+}
+
+/* React Flow custom styles */
+.react-flow__background {
+  background-color: #0f172a;
+}
+
+.react-flow__node {
+  transition: box-shadow 0.2s;
+}
+
+.react-flow__node-selected {
+  box-shadow: 0 0 0 2px #0ea5e9;
+}
+
+/* Lightweight Charts container */
+.chart-container {
+  width: 100%;
+  height: 100%;
+  min-height: 400px;
+}
+
+/* Toast styles */
+.toast {
+  @apply fixed bottom-4 right-4 z-50 px-4 py-3 rounded-lg shadow-lg animate-slide-in;
+}
+
+.toast-success {
+  @apply bg-green-600 text-white;
+}
+
+.toast-error {
+  @apply bg-red-600 text-white;
+}
+
+.toast-info {
+  @apply bg-primary-600 text-white;
+}
+
+@keyframes slide-in {
+  from {
+    opacity: 0;
+    transform: translateX(100%);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.animate-slide-in {
+  animation: slide-in 0.3s ease-out;
+}

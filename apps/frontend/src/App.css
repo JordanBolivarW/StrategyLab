@@ -1,0 +1,161 @@
+/* App-specific styles */
+.app-layout {
+  @apply min-h-screen flex flex-col;
+}
+
+.app-header {
+  @apply border-b border-dark-border bg-dark-card/50 backdrop-blur-sm sticky top-0 z-40;
+}
+
+.app-main {
+  @apply flex-1 flex overflow-hidden;
+}
+
+.sidebar {
+  @apply w-64 border-r border-dark-border bg-dark-card flex flex-col overflow-hidden;
+}
+
+.sidebar-section {
+  @apply p-4 border-b border-dark-border;
+}
+
+.sidebar-title {
+  @apply text-xs font-semibold uppercase tracking-wider text-gray-400 mb-3;
+}
+
+.market-list {
+  @apply space-y-1 overflow-y-auto flex-1;
+}
+
+.market-item {
+  @apply px-3 py-2 rounded-lg cursor-pointer transition-colors hover:bg-dark-border flex items-center justify-between;
+}
+
+.market-item.active {
+  @apply bg-primary-600/20 border border-primary-500/50;
+}
+
+.market-symbol {
+  @apply font-mono font-medium;
+}
+
+.market-name {
+  @apply text-xs text-gray-400;
+}
+
+.content-area {
+  @apply flex-1 flex flex-col overflow-hidden;
+}
+
+.toolbar {
+  @apply h-16 border-b border-dark-border bg-dark-card/50 backdrop-blur-sm flex items-center justify-between px-4;
+}
+
+.toolbar-group {
+  @apply flex items-center gap-2;
+}
+
+.tab-bar {
+  @apply h-10 border-b border-dark-border bg-dark-card flex items-center;
+}
+
+.tab {
+  @apply px-4 py-2 text-sm font-medium text-gray-400 hover:text-white hover:bg-dark-border transition-colors cursor-pointer border-b-2 border-transparent;
+}
+
+.tab.active {
+  @apply text-primary-400 border-primary-500;
+}
+
+.chart-area {
+  @apply flex-1 relative overflow-hidden;
+}
+
+.panel-area {
+  @apply w-80 border-l border-dark-border bg-dark-card flex flex-col overflow-hidden;
+}
+
+.panel-tabs {
+  @apply flex border-b border-dark-border;
+}
+
+.panel-tab {
+  @apply flex-1 px-3 py-2 text-sm font-medium text-gray-400 hover:text-white hover:bg-dark-border transition-colors cursor-pointer border-b-2 border-transparent;
+}
+
+.panel-tab.active {
+  @apply text-primary-400 border-primary-500;
+}
+
+.results-grid {
+  @apply grid grid-cols-2 gap-4 p-4;
+}
+
+.metric-card {
+  @apply bg-dark-bg/50 border border-dark-border rounded-lg p-4;
+}
+
+.metric-label {
+  @apply text-xs text-gray-400 uppercase tracking-wider mb-1;
+}
+
+.metric-value {
+  @apply text-2xl font-bold font-mono;
+}
+
+.metric-value.positive {
+  @apply text-green-400;
+}
+
+.metric-value.negative {
+  @apply text-red-400;
+}
+
+/* Strategy Graph styles */
+.strategy-graph-container {
+  @apply flex-1 relative;
+}
+
+.node-panel {
+  @apply w-64 border-l border-dark-border bg-dark-card overflow-y-auto;
+}
+
+.node-category {
+  @apply p-4 border-b border-dark-border;
+}
+
+.node-category-title {
+  @apply text-xs font-semibold uppercase tracking-wider text-gray-400 mb-3;
+}
+
+.node-item {
+  @apply px-3 py-2 rounded-lg cursor-grab hover:bg-dark-border transition-colors mb-1 flex items-center gap-2;
+}
+
+.node-item:active {
+  @apply cursor-grabbing;
+}
+
+.node-icon {
+  @apply w-6 h-6 flex items-center justify-center rounded bg-dark-border;
+}
+
+/* Chart styles */
+.chart-toolbar {
+  @apply flex items-center gap-2 p-2 border-b border-dark-border bg-dark-card;
+}
+
+.timeframe-select {
+  @apply px-3 py-1.5 bg-dark-bg border border-dark-border rounded-lg text-sm text-white focus:outline-none focus:ring-2 focus:ring-primary-500;
+}
+
+/* Responsive */
+@media (max-width: 1024px) {
+  .sidebar {
+    @apply w-56;
+  }
+  
+  .panel-area {
+    @apply w-72;
+  }
+}

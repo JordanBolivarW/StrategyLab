@@ -1,0 +1,24 @@
+[project]
+name = "strategy-lab-shared"
+version = "0.1.0"
+description = "Shared Pydantic schemas for Strategy Lab MCP"
+readme = "README.md"
+requires-python = ">=3.13"
+authors = [{name = "Strategy Lab Team"}]
+license = {text = "MIT"}
+
+[tool.uv]
+dev-dependencies = [
+    "pytest>=8.0.0",
+    "mypy>=1.9.0",
+    "ruff>=0.4.0",
+]
+
+dependencies = [
+    "pydantic>=2.8.0",
+    "pydantic-settings>=2.4.0",
+]
+
+[build-system]
+requires = ["setuptools>=68.0", "wheel"]
+build-backend = "setuptools.build_meta"
