@@ -1,104 +1,112 @@
-# Strategy Lab — Reporte de estado actual
+# Strategy Lab - Reporte de estado actual
 
-**Fecha:** 2026-10-02
-**Autor:** reporte generado durante la puesta en marcha del entorno local (Windows)
-**Rama:** `main` (commit inicial, sin pushes previos)
+**Fecha:** 2026-10-04
+**Rama:** `main`
+**Metodo:** smoke test real (instalacion de dependencias, arranque de servicios, pruebas de endpoints, ejecucion de suites de tests)
 
 ## 1. Resumen ejecutivo
 
-El proyecto **no está corriendo todavía**. El frontend (`http://localhost:5173/`) no muestra nada porque
-ningún servidor está levantado. La base de datos **sí quedó lista**: se creó un cluster PostgreSQL propio
-para el proyecto en el puerto **5434** con usuario y base `strategy_lab` verificados.
+El proyecto **si se puede correr** en local (Windows). En esta sesion se verifico:
 
-Lo único pendiente para correr el proyecto es:
+- Backend (FastAPI) corriendo y sano en `http://localhost:8000`
+- Frontend (Vite + React) corriendo en `http://localhost:5173`
+- PostgreSQL 16 del sistema en `localhost:5432` con base `strategy_lab` y sus 6 tablas creadas
+- Las unicas areas realmente implementadas son **Market Data (REST)** y **MCP de solo lectura**
+- El resto (Strategies REST, Backtests REST, engines de indicadores/backtest, auth) sigue en estado **stub**
 
-1. Apuntar el `.env` al puerto `5434` (hoy apunta a `5433`).
-2. Crear el venv del backend con Python 3.14, instalar dependencias y correr migraciones.
-3. Levantar backend (puerto 8000) y frontend (puerto 5173).
+Estado de tests backend: **25 passed / 10 failed / 13 errors** (1.8s).
 
-## 2. Mapa de ubicación (dónde está cada cosa)
+## 2. Entorno verificado
 
-| Componente | Ubicación / puerto | Estado |
+| Componente | Version / valor | Nota |
 |---|---|---|
-| Código del proyecto | `D:\StrategyLab` | ✅ presente |
-| Frontend (Vite + React) | `D:\StrategyLab\apps\frontend` → `http://localhost:5173/` | ⛔ no está corriendo |
-| Backend (FastAPI) | `D:\StrategyLab\apps\backend` → `http://localhost:8000/` | ⛔ no está corriendo, sin venv |
-| Variables de entorno | `D:\StrategyLab\.env` (no se commitea, ver `.env.example`) | ⚠️ apunta a puerto `5433`, debe ser `5434` |
-| Postgres del proyecto (propio) | `C:\Users\USUARIO\AppData\Local\Temp\opencode\pgdata` → `localhost:5434` | ✅ corriendo (PID 39176), BD `strategy_lab` creada |
-| Log del Postgres propio | `C:\Users\USUARIO\AppData\Local\Temp\opencode\pgdata.log` | ✅ existe |
-| Postgres del sistema (Windows) | `C:\Program Files\PostgreSQL\16\` → `localhost:5433` | ⚠️ corre pero **clave del superusuario `postgres` desconocida** — no usar |
-| Docker Desktop | daemon con error 500 (`docker version` falla) | ⛔ no usable, por eso se optó por Postgres propio |
-| pgAdmin | `http://localhost:5050` (contenedor, requiere Docker) | ⛔ no usable sin Docker |
+| OS | Windows (PowerShell 5.1) | `&&` no funciona en PS 5.1, usar `;` |
+| Python | 3.13.1 | venv en `apps/backend/.venv` |
+| pnpm | 9.0.0 | workspaces OK |
+| Node | 24.19.0 | |
+| PostgreSQL | 16.15 (servicio del sistema) | `localhost:5432`, usuario `postgres`/`postgres` |
+| Docker | **no disponible** | `pnpm docker:up` no sirve en esta maquina; no bloquea el smoke test |
+| Backend | `src/main:app` (no `app.main:app`) | la estructura real es `apps/backend/src/` |
+| Frontend | `apps/frontend`, 3 rutas | `/`, `/strategy/:id?`, `/backtest/:id` |
 
-### Credenciales del Postgres del proyecto (puerto 5434)
+### Credenciales locales creadas para el proyecto
 
-- **Usuario:** `strategy_lab`
-- **Clave:** `strategy_lab`
-- **Base:** `strategy_lab`
-- **Auth local:** `trust` (cluster de desarrollo, solo escucha en `localhost`)
+- Usuario: `strategy_lab` / clave `strategy_lab`
+- Base: `strategy_lab` (ambos creados con `psql -U postgres` durante el smoke test)
+- No se necesita `.env`: los defaults de `src/config.py` ya apuntan a `postgresql+asyncpg://strategy_lab:strategy_lab@localhost:5432/strategy_lab`
 
-Verificación ejecutada: `psql -U strategy_lab -h localhost -p 5434 -d strategy_lab -c "SELECT 1;"` → OK.
-
-## 3. Decisiones tomadas
-
-1. **No usar el Postgres del sistema (5433).** El comando
-   `psql -U postgres -p 5433` pide una clave que nadie conoce (se definió al instalar
-   PostgreSQL 16 en Windows). Sin permisos de administrador no se puede resetear
-   (`pg_ctl reload` y `Restart-Service postgresql-spax-16` devuelven "Operation not permitted" /
-   "Cannot open service"). Se intentó adivinar claves comunes (`postgres`, `admin`) sin éxito.
-2. **No usar Docker.** El daemon de Docker Desktop responde `500 Internal Server Error`
-   (`docker version` y `docker compose up` fallan), así que `pnpm docker:up` no funciona.
-3. **Crear cluster propio con `initdb`.** Se inicializó con:
-   `initdb -D <temp>\opencode\pgdata -U strategy_lab -E UTF8 -A trust`,
-   puerto cambiado a `5434` en `postgresql.conf`, arrancado con `pg_ctl start`.
-   No requiere permisos de administrador y no toca la instalación del sistema.
-4. El archivo `C:\Program Files\PostgreSQL\16\data\pg_hba.conf` se editó temporalmente a `trust`
-   y **se revirtió a `scram-sha-256`**. El contenido actual es el original; como el servicio
-   nunca se recargó, la configuración en ejecución no cambió.
-
-## 4. Problemas conocidos del proyecto (detectados al intentar correrlo)
-
-| # | Problema | Detalle |
-|---|---|---|
-| 1 | Scripts pnpm que apuntaban a `@strategy-lab/backend` (inexistente como proyecto pnpm) | ✅ **Corregido 2026-10-02:** `lint`, `typecheck`, `test`, `build` y `dev` ya no usan el filtro de backend. Siguen pendientes de reimplementar en Python: `dev:backend`, `build:backend`, `test:backend`, `lint:backend`, `typecheck:backend`, `db:*`, `mcp:dev`. El backend se corre con `uvicorn` (§5). |
-| 1b | Hook pre-commit bloqueaba el commit inicial | ✅ **Corregido 2026-10-02:** migrado a flat config (`eslint.config.mjs`, ESLint 9), eliminados `any` innecesarios en frontend/shared, corregidos `exhaustive-deps` y renombrado `useStrategies.test.ts` → `.tsx`. `pnpm lint` y `pnpm typecheck` pasan en verde. |
-| 2 | Python 3.11 roto | `py -3.11` apunta a `C:\Python311\python.exe` que **no existe**. Usar `py -3.14` (3.14.3 verificado) o `py -3.10`. |
-| 3 | Sin `uv` ni `python` en PATH | `python` y `uv` no se reconocen; usar el launcher `py -3.14`. |
-| 4 | `.env` desactualizado | Apunta a `5433`; debe apuntar a `5434` (ver §5 paso 1). |
-| 5 | PowerShell 5.1 no acepta `&&` | Encadenar comandos con `&&` falla con `ParserError`. Usar `;` o comandos separados. |
-| 6 | Comandos interactivos se cuelgan | `psql` sin clave válida queda esperando password y agota el timeout (120s). Siempre usar `PGPASSWORD` o el cluster propio (trust). |
-
-## 5. Pasos pendientes para correr el proyecto
+## 3. Como arrancar (comandos verificados)
 
 ```powershell
-# 1. Apuntar el .env al Postgres propio (5434)
-#    Editar D:\StrategyLab\.env:
-#    DATABASE_URL=postgresql+asyncpg://strategy_lab:strategy_lab@localhost:5434/strategy_lab
-#    DATABASE_URL_SYNC=postgresql://strategy_lab:strategy_lab@localhost:5434/strategy_lab
+# 1. Dependencias frontend/monorepo (desde la raiz)
+pnpm install
 
-# 2. Backend: crear venv e instalar dependencias (Python 3.14)
-py -3.14 -m venv .venv
-.venv\Scripts\Activate.ps1
-pip install -e apps\backend  # o: pip install fastapi "uvicorn[standard]" sqlalchemy alembic asyncpg pydantic pydantic-settings polars numpy pandas redis minio structlog python-dotenv python-jose passlib python-multipart
+# 2. Dependencias backend (una sola vez)
+cd apps\backend
+python -m venv .venv
+.\.venv\Scripts\pip.exe install -e .
+# OJO: ver seccion 4, el pyproject no instala las deps de runtime por si solo
 
-# 3. Backend: migraciones
-alembic -c apps\backend\alembic.ini upgrade head
+# 3. Backend (puerto 8000)
+cd apps\backend
+.\.venv\Scripts\python.exe -m uvicorn src.main:app --host 127.0.0.1 --port 8000
 
-# 4. Backend: levantar (puerto 8000) y verificar
-py -3.14 -m uvicorn main:app --app-dir apps\backend\src --host 0.0.0.0 --port 8000 --reload
-# verificar: http://localhost:8000/health  y  http://localhost:8000/docs
-
-# 5. Frontend: levantar (puerto 5173) y verificar
+# 4. Frontend (puerto 5173)
 pnpm --filter @strategy-lab/frontend dev
-# abrir: http://localhost:5173/
+
+# 5. Verificar
+# http://localhost:8000/health  -> {"status":"ok","service":"strategy-lab-backend"}
+# http://localhost:5173         -> HTTP 200
 ```
 
-> Nota: si se reinicia Windows, el Postgres propio **no arranca solo**. Levantarlo con:
-> `& "C:\Program Files\PostgreSQL\16\bin\pg_ctl.exe" -D "C:\Users\USUARIO\AppData\Local\Temp\opencode\pgdata" -l "C:\Users\USUARIO\AppData\Local\Temp\opencode\pgdata.log" start`
+## 4. Problemas detectados y corregidos durante el smoke test
 
-## 6. Subida a GitHub
+| # | Problema | Solucion aplicada |
+|---|---|---|
+| 1 | `pip install -e .` no instala las dependencias de runtime: en `apps/backend/pyproject.toml` las `dependencies` estan **anidadas dentro de `[tool.uv]`**, fuera del alcance de PEP 621 | Instaladas manualmente con pip (fix real pendiente: mover `dependencies` al nivel `[project]`) |
+| 2 | `ImportError: SQLAlchemy asyncio requires greenlet` | `pip install "sqlalchemy[asyncio]"` |
+| 3 | No existian el rol ni la base `strategy_lab` en Postgres | Creados con psql (server 16 local) |
+| 4 | Tests fallaban con `ModuleNotFoundError: aiosqlite` | `pip install aiosqlite` |
+| 5 | El módulo de entrada real es `src.main:app` corriendo desde `apps/backend` (los docs/AGENTS mencionan `app.main`) | Lanzar uvicorn con cwd=`apps/backend` y target `src.main:app` |
 
-- Repo local: `D:\StrategyLab`, rama `main`, commit inicial con todo el código + este reporte.
-- Destino solicitado: `https://github.com/JordanBolivarW` (repo `StrategyLab` por crear).
-- El `.env` **no se sube** (está en `.gitignore`, líneas 30-33); quien clone debe copiar `.env.example` → `.env`
-  y ajustar el puerto a `5434` (o a su propio Postgres).
+## 5. Features realmente implementadas (verificadas con peticiones reales)
+
+### Funcionan
+
+- **Market Data REST**
+  - `GET /api/v1/markets` -> 4 simbolos (BTCUSDT, ETHUSDT, SPY, EURUSD)
+  - `GET /api/v1/markets/{symbol}`, `GET /api/v1/markets/{symbol}/data`, `POST /api/v1/markets/{symbol}/import`
+- **MCP sobre HTTP (lectura)** - el modulo mas completo del backend
+  - `GET /api/v1/mcp/tools` -> lista de tools con `inputSchema`
+  - `POST /api/v1/mcp/tools/call` probado: `get_platform_capabilities`, `list_markets`, `list_indicators` (devuelve sma, ema, rsi, macd, atr, bollinger_bands), `list_node_types`, `describe_*`
+- **Esquema de datos** - 6 tablas creadas automaticamente en el arranque: `users`, `strategies`, `strategy_versions`, `backtests`, `datasets`, `experiments`
+- **Frontend UI** - Vite sirve las 3 paginas (Dashboard, StrategyBuilder, BacktestResults)
+
+### No funcionan (stubs confirmados)
+
+- **`src/api/v1/strategies.py`** (513 bytes): solo imports y `router = APIRouter()` vacio. **Cero endpoints** (se esperan: list/create/get/update/delete/versions/clone/validate). Genera 10 tests fallidos.
+- **`src/api/v1/backtests.py`** (595 bytes): mismo caso, router vacio.
+- **MCP de escritura**: `list_strategies` devuelve `Tool 'list_strategies' not implemented yet`.
+- **`src/services/indicator_engine.py`**: 13 errores de tests por incompatibilidad con la API de **Polars v1.x** instalada.
+- **`src/services/backtest_engine.py`**: errores de validacion Pydantic en los tests.
+- **Auth**: no existe router ni servicio de autenticacion (aunque si hay modelo `User`).
+
+### Conteo por archivo (tamano como indicador de avance)
+
+```
+src/api/v1/strategies.py     513 bytes  -> stub
+src/api/v1/backtests.py      595 bytes  -> stub
+src/api/v1/markets.py      2388 bytes   -> implementado
+src/api/v1/mcp.py         20777 bytes   -> implementado (lectura)
+```
+
+## 6. Veredicto sobre los specs
+
+- Existe **un solo spec**: `SPECS/project-foundation.md` (bien definido, pero de alcance amplio: mezcla infraestructura y contrato de dominio).
+- Los demas specs citados en `AGENTS.md` (`strategy-graph`, `backtesting-engine`, `mcp-server`, `ui-graph-editor`, `api-contracts`, `market-data`) **no existen todavia**.
+- En la practica, los **tests de `apps/backend/tests/` funcionan como contrato de aceptacion** por feature.
+- El foundation esta cumplido en estructura; lo pendiente es la implementacion de los endpoints/services.
+
+## 7. Siguiente paso
+
+Ver `docs/orden-ejecucion.md` para el orden de fases recomendado (Relleno de stubs por dependencias, siguiendo SPEC -> Plan -> Implement -> Verify).
