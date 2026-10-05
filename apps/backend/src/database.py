@@ -1,5 +1,11 @@
-from contextlib import asynccontextmanager
-from sqlalchemy.ext.asyncio import AsyncEngine, AsyncSession, async_sessionmaker, create_async_engine
+from collections.abc import AsyncGenerator
+
+from sqlalchemy.ext.asyncio import (
+    AsyncEngine,
+    AsyncSession,
+    async_sessionmaker,
+    create_async_engine,
+)
 from sqlalchemy.orm import DeclarativeBase
 
 from .config import get_settings
@@ -26,8 +32,12 @@ class Base(DeclarativeBase):
     pass
 
 
-@asynccontextmanager
-async def get_db_session() -> AsyncSession:
+async def get_db_session() -> AsyncGenerator[AsyncSession, None]:
+    """FastAPI dependency: yields a session, commits on success.
+
+    Plain async generator (not @asynccontextmanager): FastAPI >= 0.118
+    no longer accepts bare context-manager functions in Depends().
+    """
     async with async_session_factory() as session:
         try:
             yield session

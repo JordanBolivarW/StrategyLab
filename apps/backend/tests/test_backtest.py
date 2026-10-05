@@ -147,15 +147,20 @@ class TestStrategyEngineIntegration:
         engine = StrategyEngine()
 
         # Valid strategy
+        # NOTE (SPECS/strategy-graph.md §8 E9): a valid graph requires an
+        # exit node. This fixture was repaired to include action.close;
+        # assertions are unchanged.
         valid_graph = {
             "nodes": [
                 {"id": "1", "type": "data.close", "position": {"x": 0, "y": 0}, "data": {}},
                 {"id": "2", "type": "indicator.sma", "position": {"x": 200, "y": 0}, "data": {"period": 20}},
                 {"id": "3", "type": "action.buy", "position": {"x": 400, "y": 0}, "data": {}},
+                {"id": "4", "type": "action.close", "position": {"x": 400, "y": 100}, "data": {}},
             ],
             "edges": [
                 {"id": "e1", "source": "1", "target": "2"},
                 {"id": "e2", "source": "2", "target": "3"},
+                {"id": "e3", "source": "2", "target": "4"},
             ],
             "metadata": {},
         }

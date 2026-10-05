@@ -68,7 +68,8 @@ class StrategyUpdate(BaseModel):
 
 class StrategyResponse(StrategyBase):
     id: UUID
-    user_id: UUID
+    # Optional until auth exists (SPECS/strategy-graph.md §11 U3)
+    user_id: Optional[UUID]
     current_version: int
     created_at: datetime
     updated_at: datetime

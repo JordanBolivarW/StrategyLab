@@ -62,7 +62,9 @@ export const PositionSchema = z.object({
 })
 
 export const StrategyNodeSchema = z.object({
-  id: z.string().uuid(),
+  // NOTE (SPECS/strategy-graph.md §3): ids are opaque non-empty strings,
+  // not UUIDs — the backend acceptance fixtures use "1", "2", ...
+  id: z.string().min(1),
   type: NodeTypeSchema,
   position: PositionSchema,
   data: z.record(z.unknown()),
@@ -71,9 +73,11 @@ export const StrategyNodeSchema = z.object({
 export type StrategyNode = z.infer<typeof StrategyNodeSchema>
 
 export const StrategyEdgeSchema = z.object({
-  id: z.string().uuid(),
-  source: z.string().uuid(),
-  target: z.string().uuid(),
+  // NOTE (SPECS/strategy-graph.md §3): ids are opaque non-empty strings,
+  // not UUIDs — the backend acceptance fixtures use "e1", ...
+  id: z.string().min(1),
+  source: z.string().min(1),
+  target: z.string().min(1),
   sourceHandle: z.string().optional(),
   targetHandle: z.string().optional(),
 })
@@ -81,14 +85,21 @@ export const StrategyEdgeSchema = z.object({
 export type StrategyEdge = z.infer<typeof StrategyEdgeSchema>
 
 export const StrategyGraphSchema = z.object({
-  nodes: z.array(StrategyNodeSchema).min(1),
-  edges: z.array(StrategyEdgeSchema).min(1),
+  // NOTE (SPECS/strategy-graph.md §4 rule S1): emptiness is a semantic
+  // validation concern, not a syntactic one — no .min(1) here.
+  nodes: z.array(StrategyNodeSchema),
+  edges: z.array(StrategyEdgeSchema),
   metadata: z.record(z.unknown()).default({}),
 })
 
 export type StrategyGraph = z.infer<typeof StrategyGraphSchema>
 
 // Strategy Metadata
+//
+// @deprecated (SPECS/strategy-graph.md §3): strategy-level fields (name,
+// market, timeframe, ...) live on the Strategy entity, NOT inside
+// `graph.metadata`, which is a free-form bag. Kept for one release cycle,
+// then delete.
 export const StrategyMetadataSchema = z.object({
   name: z.string().min(1).max(255),
   description: z.string().optional(),
