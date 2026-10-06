@@ -336,4 +336,4 @@ async def run_backtest(
     )
 
     engine = BacktestEngine()
-    return await engine.run(strategy_graph, config, market_data)
+    return engine.run(strategy_graph, config, market_data)
