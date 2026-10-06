@@ -9,12 +9,12 @@ class IndicatorEngine:
     @staticmethod
     def sma(series: pl.Series, period: int) -> pl.Series:
         """Simple Moving Average"""
-        return series.rolling_mean(window_size=period, min_periods=period)
+        return series.rolling_mean(window_size=period, min_samples=period)
 
     @staticmethod
     def ema(series: pl.Series, period: int) -> pl.Series:
         """Exponential Moving Average"""
-        return series.ewm_mean(span=period, min_periods=period)
+        return series.ewm_mean(span=period, adjust=False, min_samples=1)
 
     @staticmethod
     def rsi(series: pl.Series, period: int = 14) -> pl.Series:
@@ -23,8 +23,8 @@ class IndicatorEngine:
         gain = delta.clip(lower_bound=0)
         loss = -delta.clip(upper_bound=0)
 
-        avg_gain = gain.rolling_mean(window_size=period, min_periods=period)
-        avg_loss = loss.rolling_mean(window_size=period, min_periods=period)
+        avg_gain = gain.rolling_mean(window_size=period, min_samples=period)
+        avg_loss = loss.rolling_mean(window_size=period, min_samples=period)
 
         rs = avg_gain / avg_loss
         rsi = 100 - (100 / (1 + rs))
@@ -42,7 +42,7 @@ class IndicatorEngine:
         ema_slow = IndicatorEngine.ema(series, slow_period)
 
         macd_line = ema_fast - ema_slow
-        signal_line = macd_line.ewm_mean(span=signal_period, min_periods=signal_period)
+        signal_line = macd_line.ewm_mean(span=signal_period, adjust=False, min_samples=signal_period)
         histogram = macd_line - signal_line
 
         return {
@@ -60,8 +60,8 @@ class IndicatorEngine:
         tr2 = (high - prev_close).abs()
         tr3 = (low - prev_close).abs()
 
-        true_range = pl.max_horizontal(tr1, tr2, tr3)
-        atr = true_range.rolling_mean(window_size=period, min_periods=period)
+        true_range = pl.select(pl.max_horizontal(tr1, tr2, tr3)).to_series()
+        atr = true_range.rolling_mean(window_size=period, min_samples=period)
 
         return atr
 
@@ -72,8 +72,8 @@ class IndicatorEngine:
         std_dev: float = 2.0,
     ) -> dict[str, pl.Series]:
         """Bollinger Bands"""
-        middle = series.rolling_mean(window_size=period, min_periods=period)
-        std = series.rolling_std(window_size=period, min_periods=period, ddof=0)
+        middle = series.rolling_mean(window_size=period, min_samples=period)
+        std = series.rolling_std(window_size=period, min_samples=period, ddof=0)
 
         upper = middle + (std * std_dev)
         lower = middle - (std * std_dev)

@@ -30,7 +30,7 @@ class TestIndicatorEngine:
         return pl.DataFrame({
             "timestamp": pl.datetime_range(
                 start=pl.datetime(2024, 1, 1),
-                end=pl.datetime(2024, 1, 1) + pl.duration(hours=100),
+                end=pl.datetime(2024, 1, 1) + pl.duration(hours=n - 1),
                 interval="1h",
                 time_unit="ms",
                 eager=True,

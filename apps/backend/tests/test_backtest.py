@@ -72,7 +72,7 @@ class TestBacktestEngine:
     @pytest.fixture
     def config(self):
         return BacktestConfig(
-            strategy_id="test",
+            strategy_id="00000000-0000-0000-0000-000000000001",
             market="BTCUSDT",
             timeframe="1h",
             start_date="2024-01-01",

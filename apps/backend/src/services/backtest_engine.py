@@ -20,7 +20,7 @@ class BacktestEngine:
         self.indicator_engine = IndicatorEngine()
         self.strategy_engine = StrategyEngine()
 
-    async def run(
+    def run(
         self,
         strategy_graph: dict[str, Any],
         config: BacktestConfig,
